@@ -1,0 +1,131 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const Customer = require('../models/customer');
+const Product = require('../models/products');
+const Order = require('../models/order');
+const orderRouter = express.Router();
+//const router = express.Router();
+
+// mongoose.connect('mongodb://localhost/', { useNewUrlParser: true, useUnifiedTopology: true}) <== instead of localhost:27017 use 127.0.0.1:27017
+mongoose.connect('mongodb://127.0.0.1:27017/polaris')
+  .then(() => console.log('Connected!'))
+const db = mongoose.connection;
+
+//check Mongodb connection
+db.once('open', () => {
+    console.log('Connected to the local mongoDB')
+})
+
+
+
+// Validation function
+//async function validateInput(customerId, items, shippingDetails) {
+    // spcicific validation logic to be implemented here
+    // ....
+
+    //throw an error if validation fails
+    // throw new error ('Invalid input');
+//}
+
+async function validateInput(customerId, items, shippingDetails) {
+    try {
+      // Example: Check if customerId is valid
+      if (!isValidCustomerId(customerId)) {
+        throw new Error('Invalid customer ID');
+      }
+  
+      // Example: Check if items array is not empty
+      if (!items || items.length === 0) {
+        throw new Error('Items list is empty');
+      }
+  
+      // Example: Validate shipping details
+      validateShippingDetails(shippingDetails);
+  
+      // All validation passed, return true or any desired response
+      return true;
+    } catch (error) {
+      // Catch and handle validation errors
+      console.error('Validation Error:', error.message);
+      throw error; // Rethrow the error to indicate validation failure
+    }
+  }
+  
+  function isValidCustomerId(customerId) {
+    // logic to validate customer ID
+    // check if it's a non-empty string or follows a certain pattern
+    return typeof customerId === 'string' && customerId.trim() !== '';
+  }
+  
+  function validateShippingDetails(shippingDetails) {
+    // logic to validate shipping details
+    // check if all required fields are present
+    if (!shippingDetails || !shippingDetails.address.street || !shippingDetails.address.district) {
+      throw new Error('Invalid shipping details');
+    }
+  }
+  
+
+// stock checking and deduction function
+async function checkStockAndDeduct(items, session) {
+    try {
+        for(const item of items) {
+            const product = await Product.findById(item.product).session(session);  // , { quantity: 1 }
+            if (!product || product.stockQuantity < item.quantity) {
+                throw new Error(`Insufficient stock for product ${product ? product.name : 'Unknown'}`);
+            }
+            await Product.findByIdAndUpdate(item.id, { $inc: { qantity: -item.quantity} }).session(session);
+        }
+    } finally {
+        session.endSession();
+    }
+}
+
+// Order creation and saving function
+async function createAndSaveOrder(customerId, items, shippingDetails) { // , session
+    try {
+        const order = new Order({ customerId, items, shippingDetails });  // , session
+        (await order.save())  //.session(session);
+        return order;
+    } catch(error){ console.error(error)}
+    //finally {
+      //  session.endSession();
+   // }
+}
+
+// Error handling function
+function handleError(res, error) {
+    if (error.name === 'TransactionError') {
+        res.status(500).send('Error processing order. please try again later.');
+    } else {
+        res.status(500).send(`Error creating order: ${error.message} `);
+    }
+}
+
+// this route creates new order
+orderRouter.post('/orders', async (req, res) => {
+    try{
+        const { id, items, shippingDetails} = req.body;
+         // Validate input
+         validateInput(id, items, shippingDetails);
+
+         // Use transaction for data consistency
+         const session = await mongoose.startSession();
+         // session.startTransaction();
+
+         // Check real-time stock and deduct
+         await checkStockAndDeduct(items, session);
+
+         // Create and save new order
+         const order = await createAndSaveOrder(id, items, shippingDetails, session);
+
+         // await session.commitTransaction();
+
+    } catch(error){
+        console.error(error);
+        handleError(res, error);
+    }
+});
+
+
+module.exports = orderRouter;
