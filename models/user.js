@@ -20,6 +20,15 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    organizationName: {
+        type: String,
+        required: true,
+    },
+    accountType: {
+        type: String,
+        required: true,
+    }
+    ,
     role: {
         type: String,
         enum: ['customer', 'admin'],
@@ -27,9 +36,12 @@ const UserSchema = new mongoose.Schema({
     },
 
   created_at: {type: Date, default: Date.now},
-  updated_at: {type: Date, default: Date.now},  
+  updated_at: {type: Date, default: Date.now}, 
+  isActivated: { type: Boolean, default: false}, 
   passwordResetToken: String,
+  accountActivationToken: String,
   passwordResetTokenExpires: Date,
+  accountActivationTokenExpires: Date,
 
 
 });
@@ -41,6 +53,14 @@ UserSchema.pre('save', async function (next) {
     next();
 });
 
+
+UserSchema.methods.createAccountActivationToken = function(){
+    const activationToken = crypto.randomBytes(32).toString('hex');
+    
+    this.accountActivationToken = crypto.createHash('sha256').update(activationToken).digest('hex')
+    this. accountActivationTokenExpires = Date.now() + 10 * 60 * 1000; 
+    return activationToken
+}
 
 UserSchema.methods.createResetPasswordToken = function(){
     const resetToken = crypto.randomBytes(32).toString('hex');

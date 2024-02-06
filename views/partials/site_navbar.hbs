@@ -1,0 +1,63 @@
+ <div class="site-navbar py-2">
+        <div class="search-wrap">
+            <div class="container">
+                    <a href="#" class="search-close js-search-close"><span class="icon-close2"></span></a>
+                    <form action="#" method="post">
+                        <input type="text" class="form-control" placeholder="Search keyword and hit enter...">
+                    </form>
+            </div>
+        </div>
+
+     <div class="container">
+         <div class="d-flex align-items-center justify-content-between">
+                <div class="logo">
+                        <div class="site-logo">
+                        <a href="index.html" class="js-logo-clone">Polaris</a>
+                        </div>
+                </div>
+              <div class="main-nav d-none d-lg-block">
+                    <nav class="site-navigation text-right text-md-center" role="navigation">
+                        <ul class="site-menu js-clone-nav d-none d-lg-block">
+                            <li class="active"><a href="/">Home</a></li>
+                            <li class="has-children">
+                            <a href="#">Orders and delivery</a>
+                            <ul class="dropdown">
+                                <li><a href="#">delivery status</a></li>
+                                <li class="has-children">
+                                <a href="#">Orders</a>
+                                <ul class="dropdown">
+                                    <li><a href="#">order status</a></li>
+                                    <li><a href="#">My orders</a></li>
+                                    
+                                </ul>
+                                </li>
+                                
+                                
+                            </ul>
+                            </li>
+                            <li><a href="/general/about">About</a></li>
+                            <li><a href="/general/contact">Contact</a></li>
+                            <li><a href="/users/users/register">Register</a></li>
+                            <li><a href="/users/users/login">Login</a></li>
+                           
+                        </ul>
+                    </nav>
+                </div>
+            
+                <div class="icons">
+                    <a href="#" class="icons-btn d-inline-block js-search-open"> <span class="icon-search"></span> </a>
+                    
+                    <a href="#" class="site-menu-toggle js-menu-toggle ml-3 d-inline-block d-lg-none"><span
+                        class="icon-menu"></span></a>
+                </div>
+            </div>
+        </div>
+  </div>
+
+{{#if flash}}
+<div class="alert alert-dismissible alert-{{flash.type}}">
+<button type="button" class="close"
+data-dismiss="alert" aria-hidden="true">&times;</button>
+<strong>{{flash.intro}}</strong> {{{flash.message}}}
+</div>
+{{/if}}

@@ -6,42 +6,50 @@ const jwt = require('jsonwebtoken');
 const userRouter = app.Router();
 const { validateUser, handleValidationError }= require('../controll/validateUser')
 const { forgotPassword, passwordReset } = require('../controll/accountRecovery'); 
+const { accountActivation } = require('../controll/accountActivation');
+const crypto = require('crypto');
 
 
-
-
+userRouter.get('/users/register', (req, res) => {
+    res.render("register")
+  })
+  
+  userRouter.get('/users/login', (req, res) => {
+    res.render("login")
+  })
+  
 
 
 // route to create new user
-// Route to add a new pharmaceutical product to database
+
 userRouter.post('/create', async (req, res) => {
     try {
          // exctract user details from the request body
-         const { email, firstName, lastName, password} = req.body;
+         const { email, firstName, lastName, password, accountType, organizationName} = req.body;
          
-   
+        console.log(organizationName)
          
          // validate user inputs
         await validateUser(email, firstName, lastName, password);
-        console.log(email, firstName, lastName, password);
-         
-
-         // hashing the password
-         //const hashedPassword = await bcrypt.hash(password, 10);
-         //console.log(hashedPassword);
 
          // Create a new user instance using the schema
         const newUser = new User({
             firstName, 
             lastName, 
             email, 
-            password
+            password,
+            accountType, 
+            organizationName
           
          }) 
          // save the user to the mongoDb database
          const saveUser = await newUser.save()
-        // a success response
-        res.status(201).json({ message: `${newUser.firstName} added successfully` });
+
+         // send the activation email to newly created user
+         accountActivation(req, res)
+         // sending response to user
+         res.status(201).render("account_created")
+        
       } catch (error) {
         // handle error and send an error response
        handleValidationError(res, error);
@@ -51,36 +59,57 @@ userRouter.post('/create', async (req, res) => {
   
 });
 
+// from email to this link that will serve a template with a form from which activate button will be availabe 
+userRouter.get('/activation/:token', (req, res) => {
+    const token = req.params.token;
+    res.render('activation', { token })
+})
+ // a route for activating a new user account
+ userRouter.post('/activateAccount/:token', async (req, res) => {
+    
+    const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
+    const user = await User.findOne({ 
+        accountActivationToken: token, accountActivationTokenExpires : {$gt: Date.now() }
+    });
+    
+    if (user) {
+        user.isActivated = true;
+        user.accountActivationToken = undefined;
+        await user.save();
+        res.render('login');
+    } else {
+        res.status(400).send('Invalid activation Token');
+    }
+    
+   })
+
 // a login route
 userRouter.post('/login', async (req, res) => {
     try{
         const { email, password} = req.body;
         const user = await User.findOne({email});
-        console.log(user)
+    
         if (!user) {
             return res.status(401).json({ message: 'Email or password is incorrect'});
         }
-       const isMatch = await bcrypt.compare(password, user.password);
-       console.log(isMatch)
-       
-        if(!isMatch) {
-           return res.status(401).json({ message: 'password is incorrect'});
-       }
+        if (user && user.isActivated){
+            // verify password
+            //const isMatch = await bcrypt.compare(password, user.password))
+            // bcrypt.compareSync(password, user.password)
+            console.log(user.password)
+            if (bcrypt.compare(password, user.password)) {
+                res.status(201).render("index")
+            } else {
+                return res.status(401).json({ message: 'password is incorrect'});
+            }
+        }
 
-       if (isMatch) {
+         if (isMatch) {
         req.session.user = user;
-        //res.json({ message: "login successfully" });
-       }
-        //const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {expiresIn: '2h'});
-         
-       // res.cookie("jwt", token, {
-       //     httpOnly: true
-       // });
 
-
-    res.status(201).json({ message: "User successfully logged in", user: user._id});
+         } 
     } catch (error) {
-       // console.error(error);
+       console.error(error);
         res.status(500).send('Error logging in');
     }
 })
@@ -161,20 +190,23 @@ userRouter.delete('/delete/', async (req, res) => {
 
 });
 
+// a roye to display single pharmacy page
+userRouter.get('/', (req, res) => {
+    
+    res.render('main')
+})
+
 // a route to handle recovery  link
  userRouter.post('/forgotpassword/', (req, res) => {
     // call the function to generate token for user's account recovery
-    forgotPassword(req, res)
+    forgotPassword(req, res);
 
-    // validate token and render password reset form
  })
 
  // a router for saving new password for user
  userRouter.post('/recoverPassword/:token', (req, res) => {
-    const recoveryToken = req.params.token;
-    const newpassword = req.body.newPassword;
-
-    // update user password in the database
+  // update user password in the database
+  passwordReset(req, res);
 
 
     // redirect to a login page

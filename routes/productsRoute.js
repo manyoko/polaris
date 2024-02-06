@@ -1,42 +1,80 @@
 const express = require('express');
 const Products = require('../models/products');
-const productsRouter = express.Router();
+const Router = express.Router();
 const mongoose = require('mongoose');
 
 
-// mongoose.connect('mongodb://localhost/', { useNewUrlParser: true, useUnifiedTopology: true}) <== instead of localhost:27017 use 127.0.0.1:27017
-mongoose.connect('mongodb://127.0.0.1:27017/polaris')
-  .then(() => console.log('Connected!'))
-const db = mongoose.connection;
+// route to handle for pharmaceutical searching
+Router.get('/search', async (req, res) => {
+    try { 
+        
+     
+    } catch (error) {
+        console.error("Error retrieving products: ", error);
+        res.status(500).json({ error: "Internal server error"});
+    }
+    
 
-//check Mongodb connection
-db.once('open', () => {
-    console.log('Connected to the local mongoDB')
+})
+// A route to render fprm for adding product
+Router.get('/add-product', (req, res) => {
+    res.render('add_product');
 })
 
 // Route to add a new pharmaceutical product to database
-productsRouter.post('/product', async (req, res) => {
+Router.post('/create', async (req, res) => {
     try {
+        if (true) { // condition here should check if user is loged in
          // exctract order details from the request body
          const {name, manufacturer,pharmacology, price, stockQuantity,
-             manufacturedDate, expireDate, dosageForm, brandName, description, unitPrice, strength } = req.body;
+             manufacturedDate, expireDate, dosageForm, brandName, 
+             description, unitPrice, strength, PackagingType, PackagingSize,
+              packagingMaterial, unitOfMeasurement, specialPackagingInformation, image } = req.body;
+
+              if (!name || !manufacturer || !pharmacology || !price || !stockQuantity ||
+                !manufacturedDate || !expireDate || !dosageForm || !brandName || 
+                !description || !unitPrice || !strength || !PackagingType || PackagingSize ||
+                 !packagingMaterial || !unitOfMeasurement || !specialPackagingInformation || !image ){
+                    res.status(401).json({ message : " fill all the required fields"})
+
+              }
+
+              console.log(req.body)
+
+              const packaging = {
+                 "type" : PackagingType,
+                 "size": PackagingSize,
+                 "material" : packagingMaterial,
+                 "unit" : unitOfMeasurement,
+                 "specialPackagingInformation" : specialPackagingInformation,           
+            }
+
+            console.log(packaging)
+      
 
          // Create a new order instance using the schema
         const newProduct = new Products({
           name,
+          image,
           manufacturer,
           pharmacology, 
           price, 
           stockQuantity,
           manufacturedDate,
           expireDate,
-          dosageForm, brandName, description, unitPrice, strength 
+          dosageForm, brandName, description, unitPrice, strength,
+          packaging
+          // packaging.type, packaging.size, packaging.material, packaging.unit, packaging.specialPackagingInformation 
               
-         }) 
+         })
          // save the product to the mongoDb database
          const saveOrder = await newProduct.save()
+         session.endSession
         // a success response
         res.status(201).json({ message: `${name} added successfully` });
+        } else {
+            res.status(403).json({ message: "un authorized access" })
+        }
       } catch (error) {
         // handle error and send an error response
         console.error(error);
@@ -46,11 +84,12 @@ productsRouter.post('/product', async (req, res) => {
 });
 
 
-
-productsRouter.get('/products', async (req, res) => {
+Router.get('/all', async (req, res) => {
     try {
         const products = await Products.find();
-        res.send(`<p>successfully retrieved ${ products.length } products</p>`);
+        console.log(products);
+        res.render("products", { products })
+        //res.send(`<p>successfully retrieved ${ products.length } products</p>`);
         //res.json(products)
         //res.status(200).send("Products successsfully retrieved")
     } catch (error) {
@@ -59,10 +98,27 @@ productsRouter.get('/products', async (req, res) => {
     }
 });
 
-productsRouter.get('/products?name=:query', async (req, res) => {
+Router.get('/product-detail/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const product = await Products.find({
+            _id: id,
+        });
+        console.log(product);
+        res.render("product_detail", { product })
+        //res.send(`<p>successfully retrieved ${ products.length } products</p>`);
+        //res.json(products)
+        //res.status(200).send("Products successsfully retrieved")
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error retrieving products')
+    }
+});
+
+Router.get('/products?name=:query', async (req, res) => {
     try{
         const query = req.query.name;
-        const products = await Products.find({ name : { $regex: new RegExp(query, i),}});
+        const products = await Products.findOne({ name : { $regex: new RegExp(query, i),}});
         res.send(`<p>successfully retrieved ${ products.length } products</p>`);
         res.json(products);
         
@@ -72,7 +128,7 @@ productsRouter.get('/products?name=:query', async (req, res) => {
     }
 });
 
-productsRouter.get('/products/category/:category', async (req, res) => {
+Router.get('/products/category/:category', async (req, res) => {
     try {
         const category = req.params.category;
         console.log(category);
@@ -88,7 +144,7 @@ productsRouter.get('/products/category/:category', async (req, res) => {
     }
 });
 
-productsRouter.get('/products/stock', async (req, res) => {
+Router.get('/products/stock', async (req, res) => {
     try {
         const products = await Products.find();
         const stockData = products.map((product) => ({
@@ -105,4 +161,8 @@ productsRouter.get('/products/stock', async (req, res) => {
 
 
 
-module.exports = productsRouter;
+
+
+
+
+module.exports = Router;

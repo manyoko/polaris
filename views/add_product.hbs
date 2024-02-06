@@ -1,0 +1,153 @@
+{{> site_navbar}}
+
+<div class="site-section">
+  <div class="container">
+    <div class="row">
+      
+      <div class="col-md-12">
+      
+
+        <form action="/products/create" method="post">
+        <div class="col-md-12">
+        <h5 class="h5 mb-2 text-black">Fill Form to Add Product To a Database</h5>
+      </div>
+
+          <div class="p-3 p-lg-5 border">
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="firstName" class="text-black">Official Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name">
+              </div>
+              <div class="col-md-6">
+                <label for="Brandname" class="text-black">Brand Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="brandName" name="brandName">
+              </div>
+              <div class="col-md-6">
+                <label for="manufacturer" class="text-black">manufacturer <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="manufacturer" name="manufacturer">
+              </div>
+              <div class="col-md-6">
+                <label for="Pharmacological Category" class="text-black">Pharmacological Category<span class="text-danger">*</span></label>
+    
+                <select type="text" class="form-control" id="pharmacology" name="pharmacology" placeholder="">
+                  <option class="dropdown-item" value="antibiotic">Antibiotic</option>
+                  <option class="dropdown-item" value="anti-hypertensive">Anti-hypertensive</option>
+                  <option class="dropdown-item" value="anti-diabetic">Anti-diabetic</option>
+                  <option class="dropdown-item" value="analgesic">Analgesic</option>
+                  <option class="dropdown-item" value="anti-inflammatory">anti-inflammatory</option>
+                  <option class="dropdown-item" value="anti-deppresant">Anti-deppresant</option>
+                  <option class="dropdown-item" value="anti-couagulant">Anti-coagulant</option>
+                  <option class="dropdown-item" value="anaesthesia">Anaesthetic agent</option>
+                  <option class="dropdown-item" value="supplement">Supplement</option>
+                  <option class="dropdown-item" value="vasodilator">Vasodilator</option>
+                </select>
+              </div>
+               <div class="col-md-6">
+                <label for="description" class="text-black">Description<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="description" name="description" placeholder="">
+              </div>
+              <div class="col-md-6">
+                <label for="product image" class="text-black">Product Image<span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="productImage" name="image" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="unitPrice" class="text-black">Unit Price<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="strength" name="unitPrice" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="stockQuantity" class="text-black">Stock Quantity<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="">
+              </div>
+              <div class="col-md-6">
+                <label for="dosage form" class="text-black">Dosage Form<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="dosageForm" name="dosageForm" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="strength" class="text-black">Strength(eg 100 mg)<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="strength" name="routeOfAdministration" placeholder="">
+              </div>
+              <div class="col-md-6">
+                <label for="Pharmacological Category" class="text-black">Route Of Administration<span class="text-danger">*</span></label>
+    
+                <select type="text" class="form-control" id="routeOfAdminstration" name="routeOfAdminstration" placeholder="">
+                  <option class="dropdown-item" value="oral">Oral</option>
+                  <option class="dropdown-item" value="intra-venous">Intra Venous</option>
+                  <option class="dropdown-item" value="intra-muscular">Intra Muscular</option>
+                  <option class="dropdown-item" value="Intra-theccal">Intra Theccal</option>
+                  <option class="dropdown-item" value="sublingual">Sublingual</option>
+                  <option class="dropdown-item" value="topical">Topical</option>
+                  <option class="dropdown-item" value="rectal">Rectal</option>
+                  
+                </select>
+              </div>
+              
+              <div class="col-md-6">
+                <label for="bar Code" class="text-black">Bar Code<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="barcode" name="barCode" placeholder="">
+              </div>
+              <div class="col-md-6">
+                <label for="Items Per Package" class="text-black">Items Per Package(IPP) eg 100 in a box<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="ipp" name="itemsPerPackage" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="manufactured date" class="text-black">Manufactured Date<span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="ManufucturedDate" name="manufacturedDate" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="Expiry date" class="text-black">Expiry Date<span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="expireDate" name="expireDate" placeholder="">
+              </div>
+              <div class="col-md-12">
+              <h5 class="h5 mb-2 mt-2 text-align-center text-black">Add Product Package Information</h5>
+              </div>
+              <div class="col-md-6">
+                <label for="Packaging type" class="text-black">Packaging Type<span class="text-danger">*</span></label>
+                <select type="text" class="form-control" id="PackagingType" name="PackagingType" placeholder="">
+                  <option class="dropdown-item" value="Blister pack">Blister Pack</option>
+                  <option class="dropdown-item" value="Bottle">Bottle</option>
+                  <option class="dropdown-item" value="Tubes">tubes</option>
+                  <option class="dropdown-item" value="Packect">Blister Pack</option>
+                  <option class="dropdown-item" value="Other">Other</option>
+                </select>
+              </div>
+               <div class="col-md-6">
+                <label for="Packaging Size" class="text-black">Packaging Size<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="PackagingSize" name="PackagingSize" placeholder="">
+              </div>
+              <div class="col-md-6">
+                <label for="Unit of measurement" class="text-black">Unit Of Measurement<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="unitOfMeasurement" name="unitOfMeasurement" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="packaging Material" class="text-black">Packaging Material<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="packagingMaterial" name="packagingMaterial" placeholder="">
+              </div>
+               <div class="col-md-6">
+                <label for="Special packaging information" class="text-black">Special Packaging Information<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="spi" name="specialPackagingInformation" placeholder="">
+              </div>
+              
+            </div>
+            </div>
+
+            
+          <div class="form-group row">
+              <div class="col-lg-12">
+                <input type="submit" class="btn btn-primary btn-lg btn-block" value="Add Product">
+              </div>
+            </div>
+      
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+</div>
